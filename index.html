@@ -1,0 +1,180 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+  <meta property="og:image:alt" content="">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#fafafa">
+
+  <style>
+    .grid-container {
+      width: 80vmin;
+      height: 80vmin;
+      margin: 20px auto;
+      background-color: #f5f5f5;
+      border: 2px solid #ddd;
+    }
+
+    .grid {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      gap: 1px;
+      background-color: #ccc;
+    }
+
+    .cell {
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s;
+    }
+
+    .cell:hover {
+      background-color: #e3f2fd;
+    }
+
+    .rock {
+      border-radius: 50%;
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(211, 211, 211, 0.5);
+      color: black;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .white {
+      background-color: white;
+      color: black;
+      border: solid 1px black;
+    }
+    .black {
+      background-color: black;
+      color: white;
+      border: solid 1px white;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="controls">
+  <label for="gridSize">Размер сетки: </label>
+  <input type="number" id="gridSize" value="5" min="1" max="20">
+  <button onclick="createGrid()">Создать сетку</button>
+  <button onclick="randomizeGrid()">Случайная сетка</button>
+  <button onclick="fetchData()">Получить ход</button>
+</div>
+
+<div class="grid-container">
+  <div id="grid" class="grid"></div>
+</div>
+
+<script>
+  let color = 'white';
+  const toggleColor = () => {
+    color = (color === 'white' ? 'black' : 'white');
+  }
+
+  function createGrid(size = null) {
+    const gridSize = size || parseInt(document.getElementById('gridSize').value);
+    const grid = document.getElementById('grid');
+
+    grid.innerHTML = '';
+
+    grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    for (let i = 0; i < gridSize * gridSize; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+
+      const rock = document.createElement('div');
+      rock.className = 'rock';
+      rock.textContent = `(${i % gridSize}, ${Math.floor(i / gridSize)})`;
+      rock.title = `Ячейка (${i % gridSize}, ${Math.floor(i / gridSize)})`;
+
+      cell.appendChild(rock);
+      grid.appendChild(cell);
+
+      rock.addEventListener('click', e => {
+        const el = e.target;
+        // todo: запрос на сервер тут, если ход компутера
+        el.classList.add(color);
+        toggleColor();
+      }, { once: true });
+    }
+  }
+
+  function randomizeGrid() {
+    const randomSize = Math.floor(Math.random() * 10) + 2; // от 2 до 11
+    document.getElementById('gridSize').value = randomSize;
+    createGrid(randomSize);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    createGrid(5);
+  });
+
+  window.addEventListener('resize', () => {
+  });
+
+  const fetchData = () => {
+      fetch("http://localhost:8080/api/squares/nextMove", {
+        body: JSON.stringify({
+          size: 5,
+          data: "       b   w w   b       ",
+          nextPlayerColor: "b"
+        }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+
+        }
+      })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error(err))
+  }
+
+
+</script>
+
+  <script src="js/app.js"></script>
+
+</body>
+
+</html>
