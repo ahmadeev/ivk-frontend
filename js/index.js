@@ -90,12 +90,26 @@ function onClick(e) {
     console.log(data);
     switch (data.status) {
       case ("IN_PROCESS"):
-        const rock = document.querySelector(`.rock[data-x="${data.data.x}"][data-y="${data.data.y}"]`);
-        rock.classList.add(getFullColor(data.data.color)); // если ошибка тут, то значит пользователь вмешивался в работу кода
-        // back to player color
-        game.toggleColor(); // аналогично
+        // извлекли данные из запроса
+        const x = data.move.x;
+        const y = data.move.y;
+        const color = data.move.color;
+
+        const rock = document.querySelector(`.rock[data-x="${x}"][data-y="${y}"]`);
+        rock.classList.add(getFullColor(color)); // если ошибка тут, то значит пользователь вмешивался в работу кода
+        game.toggleColor(); // back to player color // в случае ошибки, причина аналогична
         break;
       case ("END"):
+        if (data.result === "COMPUTER_WIN") {
+          // извлекли данные из запроса
+          const x = data.move.x;
+          const y = data.move.y;
+          const color = data.move.color;
+
+          const rock = document.querySelector(`.rock[data-x="${x}"][data-y="${y}"]`);
+          rock.classList.add(getFullColor(color)); // если ошибка тут, то значит пользователь вмешивался в работу кода
+          game.toggleColor(); // back to player color // в случае ошибки, причина аналогична
+        }
         // todo: убрать hover
         const rocks = document.querySelectorAll(".rock");
         rocks.forEach(rock => rock.removeEventListener('click', onClick));
@@ -109,7 +123,7 @@ function onClick(e) {
     .catch(err => {
       alert(err);
       // компенсационные действия
-      e.target.classList.remove(playerColor); // todo: слушатель удалился из-за once
+      e.target.classList.remove(playerColor); // note: слушатель удалился из-за once
       e.target.addEventListener('click', onClick, { once: true }); // wa: может можно лучше
     });
 }
