@@ -96,6 +96,7 @@ function onClick(e) {
         const color = data.move.color;
 
         const rock = document.querySelector(`.rock[data-x="${x}"][data-y="${y}"]`);
+        rock.removeEventListener('click', onClick);
         rock.classList.add(getFullColor(color)); // если ошибка тут, то значит пользователь вмешивался в работу кода
         game.toggleColor(); // back to player color // в случае ошибки, причина аналогична
         break;
